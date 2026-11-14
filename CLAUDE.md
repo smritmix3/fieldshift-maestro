@@ -128,3 +128,23 @@ Known limits: economics exists only where a live price and a live yield both exi
 - Must use at least one NASA data source and list all resources. No NASA logos or branding anywhere in the app or deck.
 - Disclose AI use: AI-assisted code, the in-app Gemini advisor, any AI-generated text. AI-generated images or video need a visible watermark.
 - Demo: 7-slide-max deck or a video of 30 seconds or less, publicly accessible with no login. English on the submission page.
+
+# Cost and Context Optimization
+
+- Be concise. Avoid lengthy explanations and repeated summaries.
+- Inspect only files relevant to the requested task.
+- Never scan the entire repository unless explicitly requested.
+- Do not reread unchanged files unnecessarily.
+- Prefer targeted searches over recursive directory scans.
+- Run only relevant tests.
+- Limit terminal output. Summarize errors instead of dumping full logs.
+- Do not rebuild working components unnecessarily.
+- Identify the root cause before modifying code.
+-. Ask before making architectural changes.
+- Avoid unnecessary subagents and parallel investigations.
+- At completion, report:
+    - Files changed
+    - Changes made
+    - Tests performed
+    - Remaining issues
+- Preserve existing architecture unless explicitly asked to change it.
