@@ -1,0 +1,11 @@
+.venv
+.git
+.env
+.cache
+.pytest_cache
+__pycache__
+*.pyc
+tests
+/_*.py
+PLAN_4H.md
+DEVELOPMENT_PLAN.md

@@ -1,0 +1,6 @@
+streamlit>=1.50
+streamlit-folium>=0.22
+folium>=0.17
+httpx>=0.27
+pandas>=2.2
+numpy>=1.26
