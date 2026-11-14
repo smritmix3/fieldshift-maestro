@@ -382,7 +382,9 @@ if result:
             "calculated values and every number in its reply is checked against them (otherwise a plain computed summary is shown). Parts of this app's code were written with "
             "an AI coding assistant. Free-tier AI providers may use prompts to improve their services, so only field-level numbers and the state and country name are sent.")
 
-st.markdown('<div class="fs-foot">Built for the NASA Space Apps Challenge. An independent entry, not affiliated with or endorsed by NASA. '
+st.markdown('<div class="fs-foot"><b>Team: The Orchestrator</b> &middot; <b>NASA Space Apps Challenge 2026 &middot; '
+            'Challenge: Field Shift: Adapting Farms with NASA Data</b><br>'
+            'An independent entry, not affiliated with or endorsed by NASA. '
             'Decision support only: check locally with an agronomist before acting.</div>', unsafe_allow_html=True)
 
 # ----------------------------------------------------------------------------- AI brief (after everything else is on screen)

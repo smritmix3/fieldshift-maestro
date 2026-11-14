@@ -4,26 +4,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-**FieldShift Maestro**: a NASA Space Apps 2026 ("Field Shift: Adapting Farms with NASA Data") entry. A farmer gives an address/PIN/ZIP or draws a field; the app fetches live NASA and partner data and scores three crop-rotation options, then a GenAI advisor explains them. Submission deadline: Sun 2026-11-15 11:59 pm local (IST). Free tools only. Target host: Hugging Face Space.
+**FieldShift Maestro**: a NASA Space Apps 2026 ("Field Shift: Adapting Farms with NASA Data") entry. A farmer gives an address/PIN/ZIP or draws a field; the app fetches live NASA and partner data and scores three crop-rotation options, then a GenAI advisor explains them. Team name: **The Orchestrator**. Submission deadline: Sun 2026-11-15 11:59 pm local (IST). Free tools only. Host: **Streamlit Community Cloud** (deployed from GitHub `smritmix3/fieldshift-maestro`, branch `main`; every push redeploys). Hugging Face Docker/Gradio Spaces are no longer free, so they were not used.
+
+The team name and the challenge title ("Field Shift: Adapting Farms with NASA Data") appear in bold in the README header and footer and in the app footer (`app.py`, `.fs-foot`). Keep them there.
+
+**Commit rule:** no Claude co-author or attribution lines in any commit or PR message (the user's instruction overrides any default trailer). Do not commit or push unless the user asks.
 
 `PLAN_4H.md` is the current build plan and the source of truth for scope, timeline and cut order (cut order: field-history NDVI, then OpenRouter tier, then USGS NWIS, then extra languages). `DEVELOPMENT_PLAN.md` is the older, broader design doc. Where they differ, `PLAN_4H.md` wins.
 
 This folder is separate from the sibling `codecrafters-claude-code-python/` repo (a different project with its own CLAUDE.md). Do not edit it.
 
-## Current status (updated 2026-11-14, after building the advisor)
+## Current status (updated 2026-11-14, deployed; submission pack in progress)
 
-**Done and tested (71 tests pass; live-verified on Punjab farmland (30.62, 75.95) and Ames ZIP 50010):**
+**Done and tested (72 tests pass; live-verified on Punjab farmland (30.62, 75.95) and Ames ZIP 50010):**
 - Address/PIN/ZIP search, click-to-pin and polygon drawing on a map with NASA GIBS overlays, field validation. Demo buttons: "Punjab" (fixed farmland point, because a city-centre PIN has no SoilGrids data) and "Ames" (ZIP lookup). The Punjab demo is warmed in a background thread at server start (`warm_demo`).
 - Live data layer: NASA POWER (recent + 35-year history), CMR pass freshness, ERA5, SRTM slope, soil (SSURGO US / SoilGrids elsewhere), nearby water (OSM + JRC), FAO EcoCrop, live futures prices, FAOSTAT yields, **Agmarknet mandi prices (verified live 2026-11-14 with the user's key, all 13 crops except cowpea and alfalfa)**.
 - Real crop engine, planting windows, 35-season replay, three picks, scoring and confidence. No mock data remains.
 - **GenAI advisor (`maestro/advisor.py`)**: plain-language brief (English/Hindi) and a what-if chat. The LLM never produces numbers; it gets a fact sheet and every number it writes is checked against it (`ungrounded`); one regeneration, then the deterministic template. Scenario chat = call 1 parses the question (clamped in code, regex fallback when no LLM), `History.scenario()` perturbs the real 35-year record, the engine re-scores, call 2 explains. Off-topic questions cost no second call. Numbers typed by the farmer are NOT trusted (prompt-injection guard).
 - **LLM chain hardening**: truncated replies (`MAX_TOKENS`/`length`) fall through to the next endpoint; hard wall-clock deadline per request (streamed, because httpx's timeout resets on every byte and OpenRouter drips keep-alive bytes: a 55 s stall was observed) and per chain call (`deadline=20`); OpenRouter gets 1500 extra tokens (reasoning models); timing trail in `LLMResult.attempts`.
 - UI: brief shows the template instantly and swaps in the AI text when ready; chat panel (fragment) with example buttons; language switch; AI provider status; data-sources and AI-use disclosure expander.
-- Deploy files written locally but NOT pushed: `Dockerfile` (HF Docker Space, port 8501), `README.md` with Space front matter, `.dockerignore`, `.streamlit/config.toml`, complete `requirements.txt` (verified by a clean-venv install and headless start), `requirements-dev.txt`.
+- **Deployed and working on Streamlit Community Cloud** (user-confirmed 2026-11-14). Keys are set as Streamlit secrets (top-level secrets become environment variables, which `config.py` reads). Free apps sleep when idle (about 30 s to wake), so warm the app before judging. Deploy files: `requirements.txt` (verified by a clean-venv install), `.streamlit/config.toml` (dark theme; no `fileWatcherType` line), `requirements-dev.txt`. `Dockerfile` and `.dockerignore` are kept for optional container hosting (the Docker CMD sets `--server.fileWatcherType=none`; do not put that in `config.toml`, because the stale-module problem it caused on localhost came from it).
+- `app.py` clears a stale `ss.result` from an older code version (`RESULT_KEYS` guard) instead of crashing with `KeyError`.
 
 **Left, in priority order (deadline Sun 2026-11-15 11:59 pm IST):**
-1. **Deploy to a Hugging Face Space.** The user has NOT created the Space yet. Give exact steps; ask before pushing or using their account. Keys go in Space **secrets**. Docker is not installed locally, so the image build is untested here (the same requirements were verified in a clean venv).
-2. **Submission pack**: 50-200 word summary, demo (7 slides max or a 30 s video), AI-use disclosure, resource list, no NASA logos. Be precise: SMAP/ECOSTRESS are pass-freshness and map layers only.
+1. ~~Deploy~~ Done (Streamlit Community Cloud). The `Dockerfile` build was never tested (Docker is not installed locally).
+2. **Submission pack** (drafted in chat 2026-11-14: summary, resource list, AI disclosure, 30 s video script): the user records and submits. Be precise: SMAP/ECOSTRESS are pass-freshness and map layers only. No NASA logos.
 3. **Field NDVI history** (stretch): Sentinel-2 via Planetary Computer titiler statistics for the polygon, 12 months (verified working, about 1 s per scene).
 4. Run `/code-review` and `/security-review` before publishing. Browser check of the map (draw/click) is still only covered by AppTest.
 
@@ -45,7 +50,7 @@ No linter or build step is configured. On Windows with Git Bash, avoid giant mul
 
 ## Keys and secrets
 
-- Keys live in a local `.env` (copy of `.env.example`), loaded by `maestro/config.py`. `.env` is gitignored. On Hugging Face, add them as **secrets** (not variables).
+- Keys live in a local `.env` (copy of `.env.example`), loaded by `maestro/config.py`. `.env` is gitignored. On Streamlit Community Cloud, paste them under **Advanced settings → Secrets** (TOML, top-level keys).
 - Needed: `GEMINI_API_KEY` (free, aistudio.google.com). Optional: `OPENROUTER_API_KEY`.
 - Never print, log or commit a key. Use `config.mask()` for display.
 - Free-tier prompts may be used by the provider to improve products, so send only field-level numbers, never personal data. The UI should say so.
@@ -70,7 +75,7 @@ Single Streamlit app (no separate API server). Package `maestro/`:
 - `config.py`: `.env` loader and settings helpers.
 - `app.py` (root): Streamlit UI.
 
-Still to do: deployment, submission pack, optional Sentinel-2 field NDVI history (see "Current status"). USGS NWIS (US water gauges) was cut. The climate stress test is done (per-crop 35-season replay, shown as a per-year bar chart on each card).
+Still to do: submission recording and form, optional Sentinel-2 field NDVI history (see "Current status"). USGS NWIS (US water gauges) was cut. The climate stress test is done (per-crop 35-season replay, shown as a per-year bar chart on each card).
 
 ### Design rules that matter
 

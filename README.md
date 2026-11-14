@@ -1,14 +1,3 @@
----
-title: FieldShift Maestro
-emoji: 🛰️
-colorFrom: blue
-colorTo: green
-sdk: docker
-app_port: 8501
-pinned: false
-short_description: Compare three crop rotations for your field with live NASA data and an AI advisor
----
-
 # 🛰️ FieldShift Maestro
 
 > **Conduct your next season.** Give it an address, a PIN or ZIP code, or draw your field on a satellite map. FieldShift Maestro
@@ -16,7 +5,9 @@ short_description: Compare three crop rotations for your field with live NASA da
 > **AI advisor** explains the result in plain **English or Hindi**. Ask "what if rain drops 30%?" and the options are re-scored on
 > 35 years of real weather.
 
-Built for the **NASA Space Apps Challenge 2026**, challenge **"Field Shift: Adapting Farms with NASA Data"**.
+**Team: The Orchestrator**
+
+**NASA Space Apps Challenge 2026 · Challenge: Field Shift: Adapting Farms with NASA Data**
 
 *An independent entry. Not affiliated with or endorsed by NASA. No NASA logos or branding are used.*
 
@@ -34,7 +25,7 @@ Built for the **NASA Space Apps Challenge 2026**, challenge **"Field Shift: Adap
 8. [Speed and resilience](#8-speed-and-resilience)
 9. [Privacy and security](#9-privacy-and-security)
 10. [Run it locally](#10-run-it-locally)
-11. [Deploy to Hugging Face Spaces](#11-deploy-to-hugging-face-spaces)
+11. [Deploy (Streamlit Community Cloud)](#11-deploy-streamlit-community-cloud-free)
 12. [Project layout and tests](#12-project-layout-and-tests)
 13. [Honest limits](#13-honest-limits)
 14. [AI use disclosure](#14-ai-use-disclosure)
@@ -374,13 +365,13 @@ How it stays fast and does not hang:
 
 ## 9. Privacy and security
 
-- **API keys** live only in a local `.env` (gitignored) and, on Hugging Face, in **Space secrets**. They are never printed, logged
+- **API keys** live only in a local `.env` (gitignored) and, on the host, in **Streamlit secrets**. They are never printed, logged
   or committed. The UI shows keys masked only.
 - **What the AI provider sees:** field-level numbers plus the state and country name. **No coordinates, names or addresses.** The
   app says this next to the chat box. Free-tier providers may use prompts to improve their services.
 - **Prompt-injection guard:** numbers the user types are not trusted in AI answers (section 7).
 - **No accounts, no tracking**, and Streamlit usage statistics are switched off.
-- The Docker image runs as a **non-root user**.
+- The optional Docker image runs as a **non-root user**.
 
 ---
 
@@ -419,16 +410,22 @@ To check that your keys and the fallback chain work against the real providers: 
 
 ---
 
-## 11. Deploy to Hugging Face Spaces
+## 11. Deploy (Streamlit Community Cloud, free)
 
-The repo is ready for a **Docker Space** (free CPU, port 8501):
+The live demo runs on **Streamlit Community Cloud**, deployed straight from this GitHub repo:
 
-1. Create a new Space, SDK **Docker**, template **Blank**, visibility **Public**.
-2. In **Settings → Variables and secrets**, add three **secrets** (not variables): `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `DATA_GOV_IN_API_KEY`.
-3. Push this repo to the Space (or connect it to the GitHub repo). The front matter at the top of this file configures the Space.
-4. The first build takes a few minutes. The container runs as a non-root user, serves on port 8501 and has a health check.
+1. Sign in at [share.streamlit.io](https://share.streamlit.io) with GitHub and choose **Create app**.
+2. Pick this repository, branch `main`, main file `app.py`.
+3. In **Advanced settings**, choose Python 3.12 and paste the keys under **Secrets** (TOML):
+   `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `DATA_GOV_IN_API_KEY`. Top-level secrets are exposed as environment variables, which is
+   what `maestro/config.py` reads, so no code change is needed.
+4. Deploy. Every push to `main` redeploys the app.
 
-The cache directory is set by `CACHE_DIR` and falls back to memory if the disk is read-only.
+Free apps sleep when idle and take about 30 seconds to wake. The cache directory is set by `CACHE_DIR` and falls back to memory
+if the disk is not writable, so the first analysis after a restart is slower.
+
+**Other hosts.** The repo also contains a `Dockerfile` (port 8501, non-root user, health check) for any container host. Hugging Face
+Docker Spaces were not used because they are no longer free.
 
 ---
 
@@ -488,4 +485,6 @@ tests mock the network only to test failure handling. The app itself uses no moc
 
 ---
 
-*Built for the NASA Space Apps Challenge 2026. Data courtesy of NASA POWER, CMR and GIBS, and the open-data providers listed in section 5.*
+**Team: The Orchestrator · NASA Space Apps Challenge 2026 · Challenge: Field Shift: Adapting Farms with NASA Data**
+
+*Data courtesy of NASA POWER, CMR and GIBS, and the open-data providers listed in section 5.*
