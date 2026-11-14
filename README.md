@@ -13,6 +13,25 @@
 
 ---
 
+
+## 🚀 Live Demo
+
+**[🌐 Launch FieldShift Maestro](https://fieldshift-maestro.streamlit.app/)**
+
+Explore the application and see how NASA Earth observation data can help farmers make climate-resilient crop rotation decisions.
+
+## 🎥 Project Demo
+
+<a href="https://www.youtube.com/watch?v=kQd7gz7DV5A">
+  <img src="https://img.youtube.com/vi/kQd7gz7DV5A/mqdefault.jpg"
+       width="400"
+       alt="FieldShift Maestro Demo">
+</a>
+
+*Click the preview to watch the full demonstration on YouTube.*
+
+---------
+
 ## Table of contents
 
 1. [The challenge and our answer](#1-the-challenge-and-our-answer)
